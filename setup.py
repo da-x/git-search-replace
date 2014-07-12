@@ -5,7 +5,7 @@ from distutils.core import setup
 setup(
     name='git-search-replace',
     version='1.0.0',
-    author='alonid',
+    author='Dan Aloni',
     author_email='alonid@gmail.com',
     packages=['gitsearchreplace', 'bin'],
     scripts=['bin/git-search-replace.py'],

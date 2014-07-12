@@ -146,7 +146,7 @@ class GitSearchReplace(object):
 
 def main():
     """Main function"""
-    parser = OptionParser(usage="usage: %prog [options] [FROM-TO-REGEXES]")
+    parser = OptionParser(usage="usage: %prog [options] (FROM-SEPARATOR-TO...)")
 
     parser.add_option(
         "-s", "--separator", dest="separator", default="///",
