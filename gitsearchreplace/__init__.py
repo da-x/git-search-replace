@@ -67,6 +67,9 @@ class GitSearchReplace(object):
                     print "rename-src-file: %s" % (filename, )
                     print "rename-dst-file: %s" % (new_filename, )
                     if self.fix:
+                        dirname = os.path.dirname(new_filename)
+                        if not os.path.exists(dirname):
+                            os.makedirs(dirname)
                         cmd = ["git", "mv", filename, new_filename]
                         run_subprocess(cmd)
 
