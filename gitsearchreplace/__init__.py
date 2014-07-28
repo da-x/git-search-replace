@@ -49,6 +49,8 @@ class GitSearchReplace(object):
     def search_replace_in_files(self):
         filenames = run_subprocess(["git", "ls-files"]).splitlines()
         for filename in filenames:
+            if not os.path.isfile(filename):
+                continue
             fileobj = file(filename)
             filedata = fileobj.read()
             fileobj.close()
