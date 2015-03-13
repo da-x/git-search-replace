@@ -7,8 +7,7 @@ setup(
     version='1.0.1',
     author='Dan Aloni',
     author_email='alonid@gmail.com',
-    packages=['gitsearchreplace', 'bin'],
-    scripts=['bin/git-search-replace.py'],
+    packages=['gitsearchreplace',],
     url='https://github.com/da-x/git-search-replace',
     license='LICENSE.txt',
     description='a utility on top of git for project-wide '
@@ -20,4 +19,9 @@ setup(
         'Programming Language :: Python :: 2.7',
         'License :: OSI Approved :: BSD License',
     ],
+    entry_points = {
+        'console_scripts': [
+            'git-search-replace.py = gitsearchreplace:main',
+        ]
+    }
 )
