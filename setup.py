@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='git-search-replace',
-    version='1.0.1',
+    version='1.0.2',
     author='Dan Aloni',
     author_email='alonid@gmail.com',
     packages=['gitsearchreplace',],
