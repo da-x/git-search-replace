@@ -1,5 +1,5 @@
-About
------
+# About
+
 *git-search-replace* is a small utility on top of plain `git` for performing project-wide search-and-replace only on git-controlled files. It applies its searches to filenames as well as their content. The underlying syntax for the search regex is Python's.
 
 It is designed to be a bit more instructive to the developer, compared to hackish `bash` scripts around `sed`.
@@ -10,8 +10,21 @@ Key features are:
 * Dry run mode '--diff' shows a unidiff of the changes that the search-and-replace would do, so that the developer can review for correctness. No working directory files are modified.
 * Fix mode '--fix' performs the actual changes and associated 'git mv'.
 
-Syntax
-------
+### Wait, but my awesome editor can already do that!
+
+That's right, but when you are working within a group of people and everyone has their own editor, it becomes quite useful to be able to communicate renames in a way that everyone can easily reproduce, and during conflict resolution it is even more useful (see: [resolve-trivial-conflicts](https://github.com/ElastiLotem/resolve-trivial-conflicts)). This comes handy especially in commit message, for instance:
+
+```
+    commit 3ed68e243e76783fa2b92fa33f7e4681f0246332
+    Author: Dan Aloni <alonid@gmail.com>
+    Date:   Sun Jul 26 18:42:52 2015 +0300
+
+    module: renamed with: gsr foo///bar -f
+
+```
+
+# Syntax
+
     Usage: gsr [options] (FROM-SEPARATOR-TO...)
 
     Options:
@@ -23,8 +36,7 @@ Syntax
 
 The expressions are tuples in the form of FROM-SEPARATOR-TO, with SEPARATOR defaults to '///'.
 
-Examples
---------
+# Examples
 
 Shell escaping needs to be taken into consideration. The examples below should work with the major UNIX shells.
 
