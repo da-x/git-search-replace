@@ -9,6 +9,7 @@ import re
 import tempfile
 import os
 import bisect
+import fnmatch
 
 def run_subprocess(cmd):
     pipe = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -27,10 +28,11 @@ class Expression(object):
 class GitSearchReplace(object):
     """Main class"""
 
-    def __init__(self, separator=None, diff=None, fix=None, expressions=None):
+    def __init__(self, separator=None, diff=None, fix=None, exclude=None, expressions=None):
         self.separator = separator
         self.diff = diff
         self.fix = fix
+        self.exclude = exclude
         self.expressions_str = expressions
         self.expressions = []
 
@@ -48,7 +50,18 @@ class GitSearchReplace(object):
 
     def search_replace_in_files(self):
         filenames = run_subprocess(["git", "ls-files"]).splitlines()
+        filtered_filenames = []
         for filename in filenames:
+            excluded = False
+            for exclude in self.exclude:
+                if fnmatch.fnmatch(filename, exclude):
+                    excluded = True
+                    continue
+            if excluded:
+                continue
+            filtered_filenames.append(filename)
+
+        for filename in filtered_filenames:
             if not os.path.isfile(filename):
                 continue
             fileobj = file(filename)
@@ -60,7 +73,7 @@ class GitSearchReplace(object):
             else:
                 self.show_lines_grep_like(filename, filedata)
 
-        for filename in filenames:
+        for filename in filtered_filenames:
             for expr in self.expressions:
                 new_filename = filename
                 new_filename = expr.fromexpr.sub(expr.toexpr, new_filename)
@@ -166,11 +179,17 @@ def main():
         action="store_true", dest="diff", default=False,
         help="Use 'diff' util to show differences")
 
+    parser.add_option("-e", "--exclude",
+        dest="exclude", default=[], action="append",
+        help="Exclude files matching the provided globbing "
+                      "pattern (can be specified more than once)")
+
     (options, args) = parser.parse_args()
     gsr = GitSearchReplace(
         separator=options.separator,
         diff=options.diff,
         fix=options.fix,
+        exclude=options.exclude,
         expressions=args)
     gsr.run()
 

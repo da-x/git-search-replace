@@ -33,6 +33,9 @@ That's right, but when you are working within a group of people and everyone has
                         The separator string which separates FROM regex and TO expression
       -f, --fix             Perform changes in-place
       -d, --diff            Use 'diff' util to show differences
+      -e EXCLUDE, --exclude=EXCLUDE
+                            Exclude files matching the provided globbing pattern
+                            (can be specified more than once)
 
 The expressions are tuples in the form of FROM-SEPARATOR-TO, with SEPARATOR defaults to '///'.
 
