@@ -21,9 +21,21 @@ def error(s):
     sys.exit(-1)
 
 class Expression(object):
-    def __init__(self, fromexpr, toexpr):
+    def __init__(self, fromexpr, toexpr, big_g):
         self.fromexpr = fromexpr
         self.toexpr = toexpr
+        self.big_g = big_g
+
+def underscore_to_titlecase(name):
+    l = []
+    for p in name.split('_'):
+        if p:
+            p = p[:1].upper() + p[1:]
+        l.append(p)
+    return ''.join(l)
+
+def titlecase_to_underscore(name):
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', name).lower()
 
 class GitSearchReplace(object):
     """Main class"""
@@ -36,6 +48,38 @@ class GitSearchReplace(object):
         self.expressions_str = expressions
         self.expressions = []
 
+    BIG_G_REGEX = re.compile(r"[\]G[{][^}]*[}]")
+    @classmethod
+    def calc_big_g(selfclass, big_g_expr):
+        """Transform the special interpolated \G{<python>}"""
+        parts = []
+        prefix = r'\G{'
+        for part in big_g_expr.split(prefix):
+            if '}' in part:
+                x = part.find('}')
+                parts.append(prefix + part[:x+1])
+                parts.append(part[x+1:])
+            else:
+                parts.append(part)
+
+        def replacer_func(G):
+            def m(i):
+                return G.groups(0)[i]
+            gen = []
+            namespace = dict(
+                G=G,
+                m=m,
+                underscore_to_titlecase=underscore_to_titlecase,
+                titlecase_to_underscore=titlecase_to_underscore,
+            )
+            for part in parts:
+                if part.startswith(r'\G{'):
+                    gen.append(eval(part[3:-1:], namespace))
+                else:
+                    gen.append(part)
+            return ''.join(gen)
+        return replacer_func
+
     def compile_expressions(self):
         if not self.expressions_str:
             error("no FROM-TO expressions specified")
@@ -44,9 +88,19 @@ class GitSearchReplace(object):
         expressions = []
         for expr in self.expressions_str:
             fromexpr, toexpr = expr.split(self.separator, 1)
+            toexpr = toexpr
+            big_g = None
+            if self.BIG_G_REGEX.search(toexpr):
+                big_g = self.calc_big_g(toexpr)
             from_regex = re.compile(fromexpr)
-            expressions.append(Expression(from_regex, toexpr))
+            expressions.append(Expression(from_regex, toexpr, big_g))
         self.expressions = expressions
+
+    @staticmethod
+    def sub(expr, content):
+        if expr.big_g:
+            return expr.fromexpr.sub(expr.big_g, content)
+        return expr.fromexpr.sub(expr.toexpr, content)
 
     def search_replace_in_files(self):
         filenames = run_subprocess(["git", "ls-files"]).splitlines()
@@ -76,7 +130,7 @@ class GitSearchReplace(object):
         for filename in filtered_filenames:
             for expr in self.expressions:
                 new_filename = filename
-                new_filename = expr.fromexpr.sub(expr.toexpr, new_filename)
+                new_filename = self.sub(expr, new_filename)
                 if new_filename != filename:
                     print
                     print "rename-src-file: %s" % (filename, )
@@ -91,7 +145,7 @@ class GitSearchReplace(object):
     def show_file(self, filename, filedata):
         new_filedata = filedata
         for expr in self.expressions:
-            new_filedata = expr.fromexpr.sub(expr.toexpr, new_filedata)
+            new_filedata = self.sub(expr, new_filedata)
         if new_filedata != filedata:
             self.act_on_possible_modification(filename, new_filedata)
 
@@ -113,7 +167,7 @@ class GitSearchReplace(object):
                 shown_lines.append('%s:%d:%s:%s' % (
                     filename, line_nr, expr_id*'_',
                     lines[line_nr - 1]))
-            new_filedata = expr.fromexpr.sub(expr.toexpr, new_filedata)
+            new_filedata = self.sub(expr, new_filedata)
             expr_id += 1
         shown_lines.sort()
         for line in shown_lines:
