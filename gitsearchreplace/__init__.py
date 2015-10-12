@@ -47,10 +47,10 @@ class GitSearchReplace(object):
         self.exclude = exclude
         self.expressions_str = expressions
         self.expressions = []
+        self.stage = None
 
     BIG_G_REGEX = re.compile(r"[\]G[{][^}]*[}]")
-    @classmethod
-    def calc_big_g(selfclass, big_g_expr):
+    def calc_big_g(self, big_g_expr):
         """Transform the special interpolated \G{<python>}"""
         parts = []
         prefix = r'\G{'
@@ -66,11 +66,15 @@ class GitSearchReplace(object):
             def m(i):
                 return G.groups(0)[i]
             gen = []
+            dotslash = '/'
+            if self.stage == 'content':
+                dotslash = '.'
             namespace = dict(
                 G=G,
                 m=m,
                 underscore_to_titlecase=underscore_to_titlecase,
                 titlecase_to_underscore=titlecase_to_underscore,
+                dotslash=dotslash,
             )
             for part in parts:
                 if part.startswith(r'\G{'):
@@ -96,8 +100,8 @@ class GitSearchReplace(object):
             expressions.append(Expression(from_regex, toexpr, big_g))
         self.expressions = expressions
 
-    @staticmethod
-    def sub(expr, content):
+    def sub(self, expr, content, stage):
+        self.stage = stage
         if expr.big_g:
             return expr.fromexpr.sub(expr.big_g, content)
         return expr.fromexpr.sub(expr.toexpr, content)
@@ -130,7 +134,7 @@ class GitSearchReplace(object):
         for filename in filtered_filenames:
             for expr in self.expressions:
                 new_filename = filename
-                new_filename = self.sub(expr, new_filename)
+                new_filename = self.sub(expr, new_filename, 'filename')
                 if new_filename != filename:
                     print
                     print "rename-src-file: %s" % (filename, )
@@ -145,7 +149,7 @@ class GitSearchReplace(object):
     def show_file(self, filename, filedata):
         new_filedata = filedata
         for expr in self.expressions:
-            new_filedata = self.sub(expr, new_filedata)
+            new_filedata = self.sub(expr, new_filedata, 'content')
         if new_filedata != filedata:
             self.act_on_possible_modification(filename, new_filedata)
 
@@ -167,7 +171,7 @@ class GitSearchReplace(object):
                 shown_lines.append('%s:%d:%s:%s' % (
                     filename, line_nr, expr_id*'_',
                     lines[line_nr - 1]))
-            new_filedata = self.sub(expr, new_filedata)
+            new_filedata = self.sub(expr, new_filedata, 'content')
             expr_id += 1
         shown_lines.sort()
         for line in shown_lines:
