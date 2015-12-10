@@ -40,10 +40,11 @@ def titlecase_to_underscore(name):
 class GitSearchReplace(object):
     """Main class"""
 
-    def __init__(self, separator=None, diff=None, fix=None, exclude=None, expressions=None):
+    def __init__(self, separator=None, diff=None, fix=None, gsr_path=None, exclude=None, expressions=None):
         self.separator = separator
         self.diff = diff
         self.fix = fix
+        self.gsr_path = gsr_path
         self.exclude = exclude
         self.expressions_str = expressions
         self.expressions = []
@@ -107,7 +108,7 @@ class GitSearchReplace(object):
         return expr.fromexpr.sub(expr.toexpr, content)
 
     def search_replace_in_files(self):
-        filenames = run_subprocess(["git", "ls-files"]).splitlines()
+        filenames = run_subprocess(["git", "ls-files", "--"] + self.gsr_path).splitlines()
         filtered_filenames = []
         for filename in filenames:
             excluded = False
@@ -237,6 +238,11 @@ def main():
         action="store_true", dest="diff", default=False,
         help="Use 'diff' util to show differences")
 
+    parser.add_option("-p", "--path",
+        dest="gsr_path", default=[], action="append",
+        help="Limit the search to files matching the provided globbing "
+                      "pattern (can be specified more than once)")
+
     parser.add_option("-e", "--exclude",
         dest="exclude", default=[], action="append",
         help="Exclude files matching the provided globbing "
@@ -247,6 +253,7 @@ def main():
         separator=options.separator,
         diff=options.diff,
         fix=options.fix,
+        gsr_path=options.gsr_path,
         exclude=options.exclude,
         expressions=args)
     gsr.run()
