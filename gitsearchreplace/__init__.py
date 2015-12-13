@@ -54,7 +54,9 @@ class GitSearchReplace(object):
         """Transform the special interpolated \G{<python>}"""
         parts = []
         prefix = r'\G{'
-        for part in big_g_expr.split(prefix):
+        oparts = big_g_expr.split(prefix)
+        parts = [oparts[0]]
+        for part in oparts[1:]:
             if '}' in part:
                 x = part.find('}')
                 parts.append(prefix + part[:x+1])
