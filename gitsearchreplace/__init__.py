@@ -110,8 +110,9 @@ class GitSearchReplace(object):
 
     def search_replace_in_files(self):
         filenames = run_subprocess(["git", "ls-files"]).splitlines()
+        unique_filenames = sorted(list(set(filenames)))
         filtered_filenames = []
-        for filename in filenames:
+        for filename in unique_filenames:
             excluded = False
             for exclude in self.exclude:
                 if fnmatch.fnmatch(filename, exclude):
