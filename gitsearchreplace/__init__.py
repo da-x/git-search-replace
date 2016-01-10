@@ -181,7 +181,7 @@ class GitSearchReplace(object):
 
     def act_on_possible_modification(self, filename, new_filedata):
         if self.diff:
-            print filename
+            print "diff -urN a/%s b/%s" % (filename, filename)
             self.show_diff(filename, new_filedata)
         if self.fix:
             fileobj = open(filename, "w")
