@@ -8,6 +8,7 @@ setup(
     author='Dan Aloni',
     author_email='alonid@gmail.com',
     packages=['gitsearchreplace',],
+    scripts=['bin/gsr-branch.py'],
     url='https://github.com/da-x/git-search-replace',
     license='LICENSE.txt',
     description='a utility on top of git for project-wide '
@@ -23,5 +24,6 @@ setup(
         'console_scripts': [
             'git-search-replace.py = gitsearchreplace:main',
         ]
-    }
+    },
+    requires=['plumbum']
 )
