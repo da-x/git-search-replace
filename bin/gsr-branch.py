@@ -60,7 +60,7 @@ class MyApp(cli.Application):
                                           argtype = cli.ExistingFile, argname = "<file>",
                                           help = "Full path of the git-rebase todo file. FOR INTERNAL USE ONLY")
     gsr_cmd = cli.SwitchAttr(["-g", "--gsr-cmd"], argtype = str, argname = "<cmd>",
-                             default = "git-search-replace.py",
+                             default = os.path.dirname(sys.argv[0]) + "/git-search-replace.py",
                              help = "Path to git-search-replace.py")
     commit_msg = cli.SwitchAttr(["-c", "--commit-msg"], argtype = str, argname = "<msg>",
                                 excludes = ["-F"],
