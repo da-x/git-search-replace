@@ -25,5 +25,5 @@ setup(
             'git-search-replace.py = gitsearchreplace:main',
         ]
     },
-    requires=['plumbum']
+    install_requires=['plumbum>=1.5']
 )
