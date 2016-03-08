@@ -40,11 +40,11 @@ def titlecase_to_underscore(name):
 class GitSearchReplace(object):
     """Main class"""
 
-    def __init__(self, separator=None, diff=None, fix=None, exclude=None, expressions=None):
+    def __init__(self, separator=None, diff=None, fix=None, filters=None, expressions=None):
         self.separator = separator
         self.diff = diff
         self.fix = fix
-        self.exclude = exclude
+        self.filters = filters
         self.expressions_str = expressions
         self.expressions = []
         self.stage = None
@@ -113,9 +113,9 @@ class GitSearchReplace(object):
         filtered_filenames = []
         for filename in filenames:
             excluded = False
-            for exclude in self.exclude:
-                if fnmatch.fnmatch(filename, exclude):
-                    excluded = True
+            for (mode, pattern) in self.filters:
+                if fnmatch.fnmatch(filename, pattern):
+                    excluded = mode == 'exclude'
                     continue
             if excluded:
                 continue
@@ -221,6 +221,10 @@ class GitSearchReplace(object):
         self.compile_expressions()
         self.search_replace_in_files()
 
+def add_filter(option, opt_str, value, parser, mode):
+    if not hasattr(parser.values, 'filters'):
+        parser.values.filters = []
+    parser.values.filters.append((mode, value))
 
 def main():
     """Main function"""
@@ -240,16 +244,31 @@ def main():
         help="Use 'diff' util to show differences")
 
     parser.add_option("-e", "--exclude",
-        dest="exclude", default=[], action="append",
+        action="callback", callback=add_filter,
+        callback_args=('exclude', ),
+        type="string",
+        metavar="PATTERN",
         help="Exclude files matching the provided globbing "
-                      "pattern (can be specified more than once)")
+             "pattern (can be specified more than once)")
+
+    parser.add_option("-i", "--include",
+        action="callback", callback=add_filter,
+        callback_args=('include', ),
+        type="string",
+        metavar="PATTERN",
+        help="Include files matching the provided globbing "
+             "pattern (can be specified more than once)")
 
     (options, args) = parser.parse_args()
+    filters = getattr(options, 'filters', [])
+    if len(filters) >= 1:
+        if filters[0][0] == 'include':
+            filters = [('exclude', '**')] + filters
     gsr = GitSearchReplace(
         separator=options.separator,
         diff=options.diff,
         fix=options.fix,
-        exclude=options.exclude,
+        filters=filters,
         expressions=args)
     gsr.run()
 

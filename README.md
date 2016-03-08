@@ -33,11 +33,21 @@ That's right, but when you are working within a group of people and everyone has
                         The separator string which separates FROM regex and TO expression
       -f, --fix             Perform changes in-place
       -d, --diff            Use 'diff' util to show differences
-      -e EXCLUDE, --exclude=EXCLUDE
+      -e PATTERN, --exclude=PATTERN
                             Exclude files matching the provided globbing pattern
+                            (can be specified more than once)
+      -i PATTERN, --include=PATTERN
+                            Include files matching the provided globbing pattern
                             (can be specified more than once)
 
 The expressions are tuples in the form of FROM-SEPARATOR-TO, with SEPARATOR defaults to '///'.
+
+The `-e` and `-i` options abide by the following rules:
+
+* Each of these can be passed multiple times.
+* The order matters, as they are checked in that order for each file. Last matcher takes effect when matched.
+* If neither is passed, all files are included by default.
+* If `-i` if given first, then by default all files are excluded.
 
 # Examples
 
