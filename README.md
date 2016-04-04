@@ -4,6 +4,8 @@
 
 It is designed to be a bit more instructive to the developer, compared to hackish `bash` scripts around `sed`.
 
+An accompanying utility is *gsr-branch*, which does the same thing as *git-search-replace* but on the *history of a branch* (using `git filter-branch`). It's especially useful for fixing a whole bunch of commits at once when the fix is a simple search & replace (retaining a clean history).
+
 Key features are:
 
 * By default, only act as grep to show what is going to change.
@@ -64,3 +66,9 @@ This uses Python regex expression \b for matching at word boundaries for whole i
     gsr 'things with space///with other stuff' --diff
 
 Note that shells properly de-escape the commas from the expression above.
+
+Example of using *gsr-branch*:
+
+    gsr-branch.py HEAD~10 '(\.|\-\>)ol_header///\1header'
+
+Runs the search replace regex over the last 10 commits, modifying them in-place. The regex will replace the string `.ol_header` (or `->ol_header`) with `.header` (or `->header`).
