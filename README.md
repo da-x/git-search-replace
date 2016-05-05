@@ -9,8 +9,8 @@ An accompanying utility is *gsr-branch*, which does the same thing as *git-searc
 Key features are:
 
 * By default, only act as grep to show what is going to change.
-* Dry run mode '--diff' shows a unidiff of the changes that the search-and-replace would do, so that the developer can review for correctness. No working directory files are modified.
-* Fix mode '--fix' performs the actual changes and associated 'git mv'.
+* Dry run mode (`--diff`) shows a unidiff of the changes that the search-and-replace would do, so that the developer can review for correctness. No working directory files are modified.
+* Fix mode (`--fix`) performs the actual changes and associated 'git mv'.
 
 ### Wait, but my awesome editor can already do that!
 
