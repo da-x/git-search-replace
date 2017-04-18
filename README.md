@@ -14,7 +14,7 @@ Key features are:
 
 ### Wait, but my awesome editor can already do that!
 
-That's right, but when you are working within a group of people and everyone has their own editor, it becomes quite useful to be able to communicate renames in a way that everyone can easily reproduce, and during conflict resolution it is even more useful (see: [resolve-trivial-conflicts](https://github.com/ElastiLotem/resolve-trivial-conflicts)). This comes handy especially in commit message, for instance:
+That's right, but when you are working within a group of people and everyone has their own editor, it becomes quite useful to be able to communicate renames in a way that everyone can easily reproduce, and during conflict resolution it is even more useful (see: [git-mediate](https://github.com/Peaker/git-mediate)). This comes handy especially in commit message, for instance:
 
 ```
     commit 3ed68e243e76783fa2b92fa33f7e4681f0246332
