@@ -40,10 +40,11 @@ def titlecase_to_underscore(name):
 class GitSearchReplace(object):
     """Main class"""
 
-    def __init__(self, separator=None, diff=None, fix=None, filters=None, expressions=None):
+    def __init__(self, separator=None, diff=None, fix=None, renames=None, filters=None, expressions=None):
         self.separator = separator
         self.diff = diff
         self.fix = fix
+        self.renames = renames
         self.filters = filters
         self.expressions_str = expressions
         self.expressions = []
@@ -133,20 +134,21 @@ class GitSearchReplace(object):
             else:
                 self.show_lines_grep_like(filename, filedata)
 
-        for filename in filtered_filenames:
-            for expr in self.expressions:
-                new_filename = filename
-                new_filename = self.sub(expr, new_filename, 'filename')
-                if new_filename != filename:
-                    print
-                    print "rename-src-file: %s" % (filename, )
-                    print "rename-dst-file: %s" % (new_filename, )
-                    if self.fix:
-                        dirname = os.path.dirname(new_filename)
-                        if dirname and not os.path.exists(dirname):
-                            os.makedirs(dirname)
-                        cmd = ["git", "mv", filename, new_filename]
-                        run_subprocess(cmd)
+        if self.renames:
+            for filename in filtered_filenames:
+                for expr in self.expressions:
+                    new_filename = filename
+                    new_filename = self.sub(expr, new_filename, 'filename')
+                    if new_filename != filename:
+                        print
+                        print "rename-src-file: %s" % (filename, )
+                        print "rename-dst-file: %s" % (new_filename, )
+                        if self.fix:
+                            dirname = os.path.dirname(new_filename)
+                            if dirname and not os.path.exists(dirname):
+                                os.makedirs(dirname)
+                            cmd = ["git", "mv", filename, new_filename]
+                            run_subprocess(cmd)
 
     def show_file(self, filename, filedata):
         new_filedata = filedata
@@ -259,6 +261,10 @@ def main():
         help="Include files matching the provided globbing "
              "pattern (can be specified more than once)")
 
+    parser.add_option("--no-renames",
+        action="store_false", dest="renames", default=True,
+        help="Don't perform renames")
+
     (options, args) = parser.parse_args()
     filters = getattr(options, 'filters', [])
     if len(filters) >= 1:
@@ -268,6 +274,7 @@ def main():
         separator=options.separator,
         diff=options.diff,
         fix=options.fix,
+        renames=options.renames,
         filters=filters,
         expressions=args)
     gsr.run()
