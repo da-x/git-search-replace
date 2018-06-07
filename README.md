@@ -41,6 +41,7 @@ That's right, but when you are working within a group of people and everyone has
       -i PATTERN, --include=PATTERN
                             Include files matching the provided globbing pattern
                             (can be specified more than once)
+      --no-renames          Don't perform renames
 
 The expressions are tuples in the form of FROM-SEPARATOR-TO, with SEPARATOR defaults to '///'.
 
