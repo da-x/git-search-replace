@@ -27,22 +27,27 @@ That's right, but when you are working within a group of people and everyone has
 
 # Syntax
 
-    Usage: gsr [options] (FROM-SEPARATOR-TO...)
+```
+Usage: gsr [options] (FROM-SEPARATOR-TO...)
+       gsr [options] -p FROM1 TO1  FROM2 TO2 ...
 
-    Options:
-      -h, --help            show this help message and exit
-      -s STRING, --separator=STRING
-                        The separator string which separates FROM regex and TO expression
-      -p, --pair-arguments  Use argument pairs for FROM and TO regexes
-      -f, --fix             Perform changes in-place
-      -d, --diff            Use 'diff' util to show differences
-      -e PATTERN, --exclude=PATTERN
-                            Exclude files matching the provided globbing pattern
-                            (can be specified more than once)
-      -i PATTERN, --include=PATTERN
-                            Include files matching the provided globbing pattern
-                            (can be specified more than once)
-      --no-renames          Don't perform renames
+Options:
+  -h, --help            show this help message and exit
+  -s STRING, --separator=STRING
+                        The separator string the separates FROM and TO
+                        regexes. /// by default, if -p is not specified
+  -p, --pair-arguments  Use argument pairs for FROM and TO regexes. Useful with
+                        shell expansion. E.g: colo{,u}r
+  -f, --fix             Perform changes in-place
+  -d, --diff            Use 'diff' util to show differences
+  -e PATTERN, --exclude=PATTERN
+                        Exclude files matching the provided globbing pattern
+                        (can be specified more than once)
+  -i PATTERN, --include=PATTERN
+                        Include files matching the provided globbing pattern
+                        (can be specified more than once)
+  --no-renames          Don't perform renames
+```
 
 The expressions are tuples in the form of FROM-SEPARATOR-TO, with SEPARATOR defaults to '///'.
 

@@ -11,6 +11,8 @@ import os
 import bisect
 import fnmatch
 
+DEFAULT_SEPARATOR = '///'
+
 def run_subprocess(cmd):
     pipe = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
     output = pipe.communicate()[0]
@@ -234,17 +236,21 @@ def add_filter(option, opt_str, value, parser, mode):
 
 def main():
     """Main function"""
-    parser = OptionParser(usage="usage: %prog [options] (FROM-SEPARATOR-TO...)")
+    parser = OptionParser(usage=
+            "usage: %prog [options] (FROM-SEPARATOR-TO...)\n"
+            "       %prog [options] -p FROM1 TO1  FROM2 TO2 ...")
 
     parser.add_option(
         "-s", "--separator", dest="separator", default=None,
-        help="The separator string the separates FROM and TO regexes",
+        help="The separator string the separates FROM and TO regexes. %s by default,"
+            " if -p is not specified" % (DEFAULT_SEPARATOR, ),
         metavar="STRING")
 
     parser.add_option(
         "-p", "--pair-arguments",
         action="store_true", dest="pair_args", default=False,
-        help="Use argument pairs for FROM and TO regexes")
+        help="Use argument pairs for FROM and TO regexes. "
+            "Useful with shell expansion. E.g: colo{,u}r")
 
     parser.add_option("-f", "--fix",
         action="store_true", dest="fix", default=False,
@@ -284,7 +290,7 @@ def main():
         assert options.separator is None
         sep = None
     else:
-        sep = options.separator or '///'
+        sep = options.separator or DEFAULT_SEPARATOR
 
     gsr = GitSearchReplace(
         separator=sep,
