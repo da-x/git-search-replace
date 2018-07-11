@@ -33,6 +33,7 @@ That's right, but when you are working within a group of people and everyone has
       -h, --help            show this help message and exit
       -s STRING, --separator=STRING
                         The separator string which separates FROM regex and TO expression
+      -p, --pair-arguments  Use argument pairs for FROM and TO regexes
       -f, --fix             Perform changes in-place
       -d, --diff            Use 'diff' util to show differences
       -e PATTERN, --exclude=PATTERN

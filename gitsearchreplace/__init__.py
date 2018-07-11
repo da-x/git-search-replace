@@ -93,9 +93,13 @@ class GitSearchReplace(object):
             return
 
         expressions = []
-        for expr in self.expressions_str:
-            fromexpr, toexpr = expr.split(self.separator, 1)
-            toexpr = toexpr
+        if self.separator is None:
+            if len(self.expressions_str) % 2 != 0:
+                error("FROM-TO expressions not paired")
+            pairs = zip(self.expressions_str[::2], self.expressions_str[1::2])
+        else:
+            pairs = [expr.split(self.separator, 1) for expr in self.expressions_str]
+        for fromexpr, toexpr in pairs:
             big_g = None
             if self.BIG_G_REGEX.search(toexpr):
                 big_g = self.calc_big_g(toexpr)
@@ -233,9 +237,14 @@ def main():
     parser = OptionParser(usage="usage: %prog [options] (FROM-SEPARATOR-TO...)")
 
     parser.add_option(
-        "-s", "--separator", dest="separator", default="///",
+        "-s", "--separator", dest="separator", default=None,
         help="The separator string the separates FROM and TO regexes",
         metavar="STRING")
+
+    parser.add_option(
+        "-p", "--pair-arguments",
+        action="store_true", dest="pair_args", default=False,
+        help="Use argument pairs for FROM and TO regexes")
 
     parser.add_option("-f", "--fix",
         action="store_true", dest="fix", default=False,
@@ -270,8 +279,15 @@ def main():
     if len(filters) >= 1:
         if filters[0][0] == 'include':
             filters = [('exclude', '**')] + filters
+
+    if options.pair_args:
+        assert options.separator is None
+        sep = None
+    else:
+        sep = options.separator or '///'
+
     gsr = GitSearchReplace(
-        separator=options.separator,
+        separator=sep,
         diff=options.diff,
         fix=options.fix,
         renames=options.renames,
