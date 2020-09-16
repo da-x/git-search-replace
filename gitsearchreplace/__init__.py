@@ -19,7 +19,7 @@ def run_subprocess(cmd):
     return output
 
 def error(s):
-    print "git-search-replace: error: " + s
+    print("git-search-replace: error: " + s)
     sys.exit(-1)
 
 class Expression(object):
@@ -98,7 +98,7 @@ class GitSearchReplace(object):
         if self.separator is None:
             if len(self.expressions_str) % 2 != 0:
                 error("FROM-TO expressions not paired")
-            pairs = zip(self.expressions_str[::2], self.expressions_str[1::2])
+            pairs = list(zip(self.expressions_str[::2], self.expressions_str[1::2]))
         else:
             pairs = [expr.split(self.separator, 1) for expr in self.expressions_str]
         for fromexpr, toexpr in pairs:
@@ -146,9 +146,9 @@ class GitSearchReplace(object):
                     new_filename = filename
                     new_filename = self.sub(expr, new_filename, 'filename')
                     if new_filename != filename:
-                        print
-                        print "rename-src-file: %s" % (filename, )
-                        print "rename-dst-file: %s" % (new_filename, )
+                        print()
+                        print("rename-src-file: %s" % (filename, ))
+                        print("rename-dst-file: %s" % (new_filename, ))
                         if self.fix:
                             dirname = os.path.dirname(new_filename)
                             if dirname and not os.path.exists(dirname):
@@ -185,11 +185,11 @@ class GitSearchReplace(object):
             expr_id += 1
         shown_lines.sort()
         for line in shown_lines:
-            print line
+            print(line)
 
     def act_on_possible_modification(self, filename, new_filedata):
         if self.diff:
-            print "diff -urN a/%s b/%s" % (filename, filename)
+            print("diff -urN a/%s b/%s" % (filename, filename))
             self.show_diff(filename, new_filedata)
         if self.fix:
             fileobj = open(filename, "w")
@@ -211,17 +211,17 @@ class GitSearchReplace(object):
                     minus_matched = True
                     match = re.match("^--- ([^ ]+) (.*)$", line)
                     if match:
-                        print "--- a/%s %s" % (filename,
-                                               match.groups(0)[1], )
+                        print("--- a/%s %s" % (filename,
+                                               match.groups(0)[1], ))
                         continue
                 if not plus_matched:
                     plus_matched = True
                     match = re.match("^[+][+][+] ([^ ]+) (.*)$", line)
                     if match:
-                        print "+++ b/%s %s" % (filename,
-                                               match.groups(0)[1], )
+                        print("+++ b/%s %s" % (filename,
+                                               match.groups(0)[1], ))
                         continue
-                print line
+                print(line)
         finally:
             os.unlink(tempf)
 

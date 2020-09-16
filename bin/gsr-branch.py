@@ -89,12 +89,12 @@ class MyApp(cli.Application):
             # __getitem__ is the same as [] but accepts a list
             git.__getitem__(filter_branch_params) & FG
         except commands.processes.ProcessExecutionError:
-            print "Error running git filter-branch. See error above"
+            print("Error running git filter-branch. See error above")
             return False
-        print "All done!"
-        print "Check the new branch and then remove the backup ref."
-        print "To remove all backup refs, run the command:"
-        print 'git for-each-ref --format="%(refname)" refs/original/ | xargs -n 1 git update-ref -d'
+        print("All done!")
+        print("Check the new branch and then remove the backup ref.")
+        print("To remove all backup refs, run the command:")
+        print('git for-each-ref --format="%(refname)" refs/original/ | xargs -n 1 git update-ref -d')
         return True
 
     def edit(self, base, *args):
@@ -122,7 +122,7 @@ class MyApp(cli.Application):
         if delete_commit_file is not None:
             os.unlink(delete_commit_file)
         if not self.edit_internal(base, *args):
-            print "Restoring old branch state"
+            print("Restoring old branch state")
             git("reset", "--hard", old_head)
             sys.exit(1)
 
