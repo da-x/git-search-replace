@@ -116,7 +116,7 @@ class GitSearchReplace(object):
         return expr.fromexpr.sub(expr.toexpr, content)
 
     def search_replace_in_files(self):
-        filenames = run_subprocess(["git", "ls-files"]).splitlines()
+        filenames = str(run_subprocess(["git", "ls-files"]), 'utf-8').splitlines()
         filtered_filenames = []
         for filename in filenames:
             excluded = False
@@ -131,9 +131,11 @@ class GitSearchReplace(object):
         for filename in filtered_filenames:
             if not os.path.isfile(filename):
                 continue
-            fileobj = file(filename)
-            filedata = fileobj.read()
-            fileobj.close()
+            with open(filename) as fileobj:
+                try:
+                    filedata = fileobj.read()
+                except UnicodeDecodeError:
+                    continue
 
             if self.diff or self.fix:
                 self.show_file(filename, filedata)
