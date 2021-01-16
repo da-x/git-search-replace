@@ -72,7 +72,7 @@ This uses Python regex expression \b for matching at word boundaries for whole i
 
     gsr 'things with space///with other stuff' --diff
 
-Note that shells properly de-escape the commas from the expression above.
+Note that shells properly de-escape the quotes from the expression above.
 
 Example of using *gsr-branch*:
 
