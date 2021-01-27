@@ -205,7 +205,7 @@ class GitSearchReplace(object):
             fileobj = open(tempf, "w")
             fileobj.write(new_filedata)
             fileobj.close()
-            diff = run_subprocess(["diff", "-urN", filename, tempf])
+            diff = str(run_subprocess(["diff", "-urN", filename, tempf]), 'utf8')
             minus_matched = False
             plus_matched = False
             for line in diff.splitlines():
