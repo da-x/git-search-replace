@@ -14,12 +14,10 @@ import fnmatch
 DEFAULT_SEPARATOR = '///'
 
 def run_subprocess(cmd):
-    pipe = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-    output = pipe.communicate()[0]
-    return output
+    return subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE).communicate()[0]
 
 def error(s):
-    print("git-search-replace: error: " + s)
+    print(f"git-search-replace: error: {s}")
     sys.exit(-1)
 
 class Expression(object):
@@ -91,8 +89,7 @@ class GitSearchReplace(object):
 
     def compile_expressions(self):
         if not self.expressions_str:
-            error("no FROM-TO expressions specified")
-            return
+            return error("no FROM-TO expressions specified")
 
         expressions = []
         if self.separator is None:
@@ -149,8 +146,8 @@ class GitSearchReplace(object):
                     new_filename = self.sub(expr, new_filename, 'filename')
                     if new_filename != filename:
                         print()
-                        print("rename-src-file: %s" % (filename, ))
-                        print("rename-dst-file: %s" % (new_filename, ))
+                        print(f"rename-src-file: {filename}")
+                        print(f"rename-dst-file: {new_filename}")
                         if self.fix:
                             dirname = os.path.dirname(new_filename)
                             if dirname and not os.path.exists(dirname):
@@ -167,9 +164,8 @@ class GitSearchReplace(object):
 
     def show_lines_grep_like(self, filename, filedata):
         new_filedata = filedata
-        expr_id = 0
         shown_lines = []
-        for expr in self.expressions:
+        for expr_id, expr in enumerate(self.expressions):
             lines = []
             line_pos = []
             pos = 0
@@ -191,20 +187,17 @@ class GitSearchReplace(object):
 
     def act_on_possible_modification(self, filename, new_filedata):
         if self.diff:
-            print("diff -urN a/%s b/%s" % (filename, filename))
+            print(f"diff -urN a/{filename} b/{filename}")
             self.show_diff(filename, new_filedata)
         if self.fix:
-            fileobj = open(filename, "w")
-            fileobj.write(new_filedata)
-            fileobj.close()
+            with open(filename, "w") as fileobj:
+                fileobj.write(new_filedata)
 
     def show_diff(self, filename, new_filedata):
-        fileobj = None
         tempf = tempfile.mktemp()
         try:
-            fileobj = open(tempf, "w")
-            fileobj.write(new_filedata)
-            fileobj.close()
+            with open(tempf, "w") as fileobj:
+                fileobj.write(new_filedata)
             diff = str(run_subprocess(["diff", "-urN", filename, tempf]), 'utf8')
             minus_matched = False
             plus_matched = False
@@ -213,15 +206,13 @@ class GitSearchReplace(object):
                     minus_matched = True
                     match = re.match("^--- ([^ ]+) (.*)$", line)
                     if match:
-                        print("--- a/%s %s" % (filename,
-                                               match.groups(0)[1], ))
+                        print(f"--- a/{filename} {match.groups(0)[1]}")
                         continue
                 if not plus_matched:
                     plus_matched = True
                     match = re.match("^[+][+][+] ([^ ]+) (.*)$", line)
                     if match:
-                        print("+++ b/%s %s" % (filename,
-                                               match.groups(0)[1], ))
+                        print(f"+++ b/{filename} {match.groups(0)[1]}")
                         continue
                 print(line)
         finally:
@@ -284,9 +275,8 @@ def main():
 
     (options, args) = parser.parse_args()
     filters = getattr(options, 'filters', [])
-    if len(filters) >= 1:
-        if filters[0][0] == 'include':
-            filters = [('exclude', '**')] + filters
+    if filters and filters[0][0] == 'include':
+        filters = [('exclude', '**')] + filters
 
     if options.pair_args:
         assert options.separator is None
